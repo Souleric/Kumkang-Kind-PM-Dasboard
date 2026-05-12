@@ -157,6 +157,31 @@ tr:hover td { background: #fafafa; }
 .vol-lbl { font-size: 10px; color: var(--text-muted); }
 .vol-val { font-size: 10px; color: var(--text-secondary); font-weight: 600; }
 
+
+
+/* ── BAR ANIMATIONS ── */
+.pipe-bar {
+  height: 100%; border-radius: 20px;
+  width: 0 !important;
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.pipe-bar.bar-ready { width: var(--bar-target) !important; }
+
+.fac-bar {
+  height: 22px; display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: #fff; font-weight: 600;
+  width: 0 !important; overflow: hidden;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fac-bar.bar-ready { width: var(--bar-target) !important; }
+
+.vol-bar {
+  width: 100%; border-radius: 3px 3px 0 0;
+  height: 0 !important;
+  transition: height 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.vol-bar.bar-ready { height: var(--bar-target) !important; }
+
 /* ── SUMMARY ROW ── */
 .summary-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .sum-chip { background: #f3f4f6; border: 0.5px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: 12px; display: flex; flex-direction: column; gap: 2px; min-width: 100px; }
@@ -987,8 +1012,68 @@ textarea { min-height: 70px; resize: vertical; }
 <script>
   // Set last updated time
   document.getElementById('lastUpdated').textContent = new Date().toLocaleString('en-MY', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  setTimeout(() => animateStatCards('dashboard'), 200);
+  setTimeout(() => animateBars('dashboard'), 200);
 
   // Navigation
+  function countUp(el, target, suffix, duration) {
+    const start = 0;
+    const startTime = performance.now();
+    const isFloat = target % 1 !== 0;
+    function update(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(eased * target);
+      el.textContent = current.toLocaleString() + (suffix || '');
+      if (progress < 1) requestAnimationFrame(update);
+      else el.textContent = target.toLocaleString() + (suffix || '');
+    }
+    requestAnimationFrame(update);
+  }
+
+  function animateStatCards(pageId) {
+    const page = document.getElementById('page-' + pageId);
+    if (!page) return;
+    page.querySelectorAll('.stat-val').forEach(el => {
+      const raw = el.textContent.trim();
+      const suffix = raw.replace(/[\d,\.]/g, '');
+      const num = parseFloat(raw.replace(/[^0-9\.]/g, '').replace(/,/g, ''));
+      if (!isNaN(num) && num > 0) countUp(el, num, suffix, 900);
+    });
+  }
+
+  function animateBars(pageId) {
+    const page = document.getElementById('page-' + pageId);
+    if (!page) return;
+
+    // Reset first
+    page.querySelectorAll('.pipe-bar, .fac-bar, .vol-bar').forEach(el => {
+      el.classList.remove('bar-ready');
+    });
+
+    // Store targets on first visit, then animate
+    requestAnimationFrame(() => {
+      page.querySelectorAll('.pipe-bar').forEach((el, i) => {
+        if (!el.dataset.tw) el.dataset.tw = el.style.width || '0%';
+        el.style.setProperty('--bar-target', el.dataset.tw);
+        setTimeout(() => el.classList.add('bar-ready'), i * 80);
+      });
+
+      page.querySelectorAll('.fac-bar').forEach((el, i) => {
+        if (!el.dataset.tw) el.dataset.tw = el.style.width || '0%';
+        el.style.setProperty('--bar-target', el.dataset.tw);
+        setTimeout(() => el.classList.add('bar-ready'), i * 90);
+      });
+
+      page.querySelectorAll('.vol-bar').forEach((el, i) => {
+        if (!el.dataset.th) el.dataset.th = el.style.height || '0px';
+        el.style.setProperty('--bar-target', el.dataset.th);
+        setTimeout(() => el.classList.add('bar-ready'), i * 70);
+      });
+    });
+  }
+
   function nav(pageId, sidebarItem, mobileItem) {
     // Hide all pages
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1007,6 +1092,12 @@ textarea { min-height: 70px; resize: vertical; }
 
     // Scroll to top
     document.querySelector('.main').scrollTop = 0;
+
+    // Animate stat card numbers
+    animateStatCards(pageId);
+
+    // Animate bar charts
+    animateBars(pageId);
   }
 
   // Sidebar toggle
