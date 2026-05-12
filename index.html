@@ -1189,8 +1189,8 @@ textarea { min-height: 70px; resize: vertical; }
   .chat-messages {
     overflow-y: auto; padding: 14px 14px 8px;
     display: flex; flex-direction: column; gap: 10px;
-    flex: 1;
     min-height: 160px;
+    max-height: calc(100vh - 340px);
   }
 
   .msg { display: flex; flex-direction: column; gap: 3px; max-width: 88%; }
@@ -1209,7 +1209,7 @@ textarea { min-height: 70px; resize: vertical; }
     padding: 6px 12px 8px;
     border-top: 0.5px solid #f3f4f6;
     display: flex; flex-direction: column; gap: 5px;
-    overflow-y: auto; max-height: 220px;
+    flex-shrink: 0;
   }
   .preset-label { font-size: 9px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 2px; }
   .preset-btn {
@@ -1236,6 +1236,7 @@ textarea { min-height: 70px; resize: vertical; }
     padding: 8px 12px 12px;
     border-top: 0.5px solid #f0f0f0;
     display: flex; align-items: center; gap: 7px;
+    flex-shrink: 0;
   }
   .chat-input-wrap {
     flex: 1; display: flex; align-items: center; gap: 7px;
