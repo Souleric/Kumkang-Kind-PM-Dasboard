@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KKM Project Management Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+:root {
+  --navy: #0d2b5e;
+  --navy-light: #eef2f9;
+  --border: #d0d5dd;
+  --bg: #f5f6f8;
+  --white: #ffffff;
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #6b7280;
+  --text-label: #4b5563;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --sidebar-w: 200px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; color: var(--text-primary); background: var(--bg); }
+
+/* ── LAYOUT ── */
+.app { display: flex; flex-direction: column; height: 100vh; }
+
+.topbar {
+  background: var(--white);
+  border-bottom: 0.5px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.25rem; height: 48px; flex-shrink: 0; z-index: 100;
+  position: sticky; top: 0;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.logo { width: 28px; height: 28px; background: var(--navy); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 8px; font-weight: 600; letter-spacing: 0.03em; flex-shrink: 0; }
+.brand-text { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.brand-sub { font-size: 10px; color: var(--text-muted); display: none; }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.tb-badge { background: #f3f4f6; color: var(--text-secondary); font-size: 10px; padding: 4px 10px; border-radius: 20px; border: 0.5px solid var(--border); display: flex; align-items: center; gap: 5px; }
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--navy); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; font-weight: 600; cursor: pointer; }
+.hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; color: var(--text-primary); font-size: 22px; }
+
+.body { display: flex; flex: 1; overflow: hidden; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-w); background: var(--white);
+  border-right: 0.5px solid var(--border);
+  display: flex; flex-direction: column;
+  flex-shrink: 0; overflow-y: auto;
+  transition: transform 0.25s ease;
+}
+.sb-section { font-size: 10px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; padding: 1rem 1rem 0.3rem; }
+.sb-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 1rem; font-size: 12.5px; color: var(--text-secondary);
+  cursor: pointer; border-left: 2px solid transparent;
+  transition: background 0.15s;
+}
+.sb-item:hover { background: #f9fafb; }
+.sb-item.active { background: var(--navy-light); color: var(--navy); font-weight: 600; border-left-color: var(--navy); }
+.sb-item i { font-size: 16px; flex-shrink: 0; }
+.sb-divider { height: 0.5px; background: var(--border); margin: 0.5rem 1rem; }
+
+/* ── MAIN ── */
+.main { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+
+.page { display: none; flex-direction: column; gap: 1.25rem; }
+.page.active { display: flex; }
+
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.page-title { font-size: 17px; font-weight: 600; color: var(--text-primary); }
+.page-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+.page-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── BUTTONS ── */
+.btn { font-size: 12px; padding: 6px 14px; border-radius: 8px; border: 0.5px solid var(--border); background: var(--white); color: var(--text-primary); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; white-space: nowrap; }
+.btn:hover { background: #f9fafb; }
+.btn-primary { background: var(--navy); color: #fff; border-color: var(--navy); }
+.btn-primary:hover { background: #0a2249; }
+.btn-danger { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+
+/* ── STAT CARDS ── */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.stat-card { background: var(--white); border: 0.5px solid var(--border); border-radius: 10px; padding: 1rem 1.125rem; }
+.stat-label { font-size: 10px; color: var(--text-label); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 6px; }
+.stat-val { font-size: 26px; font-weight: 600; color: var(--text-primary); line-height: 1; }
+.stat-trend { font-size: 10px; margin-top: 5px; display: flex; align-items: center; gap: 4px; color: var(--text-muted); }
+.trend-up { color: #15803d; }
+.trend-down { color: #b45309; }
+.trend-red { color: #991b1b; }
+
+/* ── CARDS ── */
+.card { background: var(--white); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.125rem 1.25rem; }
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.card-title { font-size: 11px; font-weight: 600; color: var(--text-label); letter-spacing: 0.05em; text-transform: uppercase; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+/* ── ALERT ── */
+.alert { border-radius: 8px; padding: 9px 14px; font-size: 12px; display: flex; align-items: center; gap: 8px; }
+.alert-warn { background: #fffbeb; border: 0.5px solid #fbbf24; color: #78350f; }
+.alert-info { background: var(--navy-light); border: 0.5px solid #93c5fd; color: var(--navy); }
+
+/* ── BADGES ── */
+.badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 600; white-space: nowrap; display: inline-block; }
+.badge-blue { background: var(--navy-light); color: var(--navy); }
+.badge-green { background: #dcfce7; color: #15803d; }
+.badge-amber { background: #fef3c7; color: #92400e; }
+.badge-red { background: #fee2e2; color: #991b1b; }
+.badge-gray { background: #f3f4f6; color: #374151; }
+.badge-purple { background: #ede9fe; color: #6d28d9; }
+
+/* ── TABLE ── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { text-align: left; font-size: 10px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; padding: 8px 12px; border-bottom: 0.5px solid var(--border); background: #f9fafb; white-space: nowrap; }
+td { padding: 10px 12px; border-bottom: 0.5px solid #f3f4f6; color: var(--text-secondary); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafafa; }
+.td-primary { font-weight: 600; color: var(--text-primary); }
+
+/* ── PIPELINE BARS ── */
+.pipe-row { display: flex; flex-direction: column; gap: 8px; }
+.pipe-item { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.pipe-label { width: 130px; color: var(--text-secondary); flex-shrink: 0; font-size: 11.5px; }
+.pipe-bar-wrap { flex: 1; height: 9px; background: #e5e7eb; border-radius: 20px; overflow: hidden; }
+.pipe-bar { height: 100%; border-radius: 20px; }
+.pipe-count { width: 24px; text-align: right; font-weight: 600; color: var(--text-primary); font-size: 12px; }
+
+/* ── TIMELINE ── */
+.tl-list { display: flex; flex-direction: column; gap: 10px; }
+.tl-item { display: flex; align-items: flex-start; gap: 10px; font-size: 12px; }
+.tl-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.tl-body { flex: 1; }
+.tl-title { font-weight: 600; color: var(--text-primary); }
+.tl-detail { color: var(--text-muted); font-size: 11px; margin-top: 2px; }
+
+/* ── FACTORY BARS ── */
+.fac-row { display: flex; flex-direction: column; gap: 10px; }
+.fac-item { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.fac-name { width: 90px; color: var(--text-secondary); flex-shrink: 0; font-weight: 600; }
+.fac-bars { flex: 1; display: flex; gap: 2px; border-radius: 4px; overflow: hidden; }
+.fac-bar { height: 22px; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #fff; font-weight: 600; }
+.fac-total { font-size: 11px; color: var(--text-muted); width: 54px; text-align: right; }
+
+/* ── VOL CHART ── */
+.vol-chart { display: flex; align-items: flex-end; gap: 8px; height: 80px; }
+.vol-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+.vol-bar { width: 100%; border-radius: 3px 3px 0 0; }
+.vol-lbl { font-size: 10px; color: var(--text-muted); }
+.vol-val { font-size: 10px; color: var(--text-secondary); font-weight: 600; }
+
+/* ── SUMMARY ROW ── */
+.summary-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.sum-chip { background: #f3f4f6; border: 0.5px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: 12px; display: flex; flex-direction: column; gap: 2px; min-width: 100px; }
+.sum-chip-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+.sum-chip-val { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+
+/* ── MODAL ── */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 500; align-items: center; justify-content: center; padding: 1rem; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--white); border-radius: 14px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; padding: 1.5rem; position: relative; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+.modal-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+.modal-close { background: none; border: none; cursor: pointer; font-size: 20px; color: var(--text-muted); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1 / -1; }
+label { font-size: 11px; font-weight: 600; color: var(--text-label); text-transform: uppercase; letter-spacing: 0.04em; }
+input, select, textarea { font-size: 13px; padding: 8px 10px; border: 0.5px solid var(--border); border-radius: 8px; font-family: inherit; color: var(--text-primary); background: var(--white); width: 100%; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--navy); }
+textarea { min-height: 70px; resize: vertical; }
+.form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1.25rem; }
+
+/* ── MOBILE NAV ── */
+.mobile-nav { display: none; background: var(--white); border-top: 0.5px solid var(--border); flex-shrink: 0; }
+.mob-nav-inner { display: flex; overflow-x: auto; }
+.mob-nav-item { flex: 1; min-width: 60px; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px 6px; font-size: 9px; color: var(--text-muted); cursor: pointer; border-top: 2px solid transparent; white-space: nowrap; }
+.mob-nav-item.active { color: var(--navy); border-top-color: var(--navy); }
+.mob-nav-item i { font-size: 20px; }
+
+/* ── SIDEBAR OVERLAY ── */
+.sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 200; }
+.sb-overlay.open { display: block; }
+
+/* ── SEARCH BAR ── */
+.search-bar { display: flex; align-items: center; gap: 8px; background: var(--white); border: 0.5px solid var(--border); border-radius: 8px; padding: 7px 12px; }
+.search-bar input { border: none; background: none; font-size: 13px; flex: 1; }
+.search-bar input:focus { outline: none; }
+.search-bar i { color: var(--text-muted); font-size: 16px; }
+
+/* ── EXPORT ── */
+.export-option { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 0.5px solid var(--border); border-radius: 10px; cursor: pointer; margin-bottom: 10px; }
+.export-option:hover { background: #f9fafb; }
+.export-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.export-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.export-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0; z-index: 300;
+    transform: translateX(-100%);
+    width: 240px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .hamburger { display: flex; }
+  .brand-text { font-size: 12px; }
+  .mobile-nav { display: block; }
+  .main { padding: 1rem; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .two-col { grid-template-columns: 1fr; }
+  .three-col { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-group.full { grid-column: 1; }
+  .tb-badge.hide-mobile { display: none; }
+  .page-actions .btn span { display: none; }
+}
+@media (max-width: 480px) {
+  .stat-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-val { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="brand">
+      <button class="hamburger" onclick="toggleSidebar()"><i class="ti ti-menu-2"></i></button>
+      <div class="logo">KKM</div>
+      <div>
+        <div class="brand-text">KKM Project Management</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="tb-badge hide-mobile"><div class="live-dot"></div> Live</div>
+      <div class="tb-badge hide-mobile" style="cursor:pointer"><i class="ti ti-bell" style="font-size:13px"></i> 3</div>
+      <div class="avatar">PM</div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- SIDEBAR OVERLAY -->
+    <div class="sb-overlay" id="sbOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <p class="sb-section">Main</p>
+      <div class="sb-item active" onclick="nav('dashboard', this)"><i class="ti ti-layout-dashboard"></i> Dashboard</div>
+      <div class="sb-item" onclick="nav('schedule', this)"><i class="ti ti-calendar"></i> Rental Schedule</div>
+      <div class="sb-item" onclick="nav('quotation', this)"><i class="ti ti-file-text"></i> Project Quotation</div>
+      <div class="sb-item" onclick="nav('jobsite', this)"><i class="ti ti-map-pin"></i> Jobsite Quotation</div>
+      <div class="sb-item" onclick="nav('forecast', this)"><i class="ti ti-chart-line"></i> Project Forecast</div>
+      <div class="sb-item" onclick="nav('ordering', this)"><i class="ti ti-shopping-cart"></i> Ordering</div>
+      <div class="sb-divider"></div>
+      <p class="sb-section">More</p>
+      <div class="sb-item" onclick="nav('archive', this)"><i class="ti ti-archive"></i> Archive</div>
+      <div class="sb-item" onclick="nav('export', this)"><i class="ti ti-download"></i> Export Reports</div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+
+      <!-- ── DASHBOARD ── -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Dashboard</div>
+            <div class="page-sub">Overview · Last updated: <span id="lastUpdated">--</span></div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openModal('addProject')"><i class="ti ti-plus"></i> <span>Add Project</span></button>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">Active Projects</div>
+            <div class="stat-val">12</div>
+            <div class="stat-trend trend-up"><i class="ti ti-trending-up" style="font-size:12px"></i> 2 added this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Project Quotation</div>
+            <div class="stat-val">8</div>
+            <div class="stat-trend trend-down"><i class="ti ti-clock" style="font-size:12px"></i> 3 pending award</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Project Forecast</div>
+            <div class="stat-val">24</div>
+            <div class="stat-trend trend-up"><i class="ti ti-trending-up" style="font-size:12px"></i> 3 new this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Ordering</div>
+            <div class="stat-val">6</div>
+            <div class="stat-trend trend-red"><i class="ti ti-alert-triangle" style="font-size:12px"></i> 2 overdue orders</div>
+          </div>
+        </div>
+
+        <div class="alert alert-warn">
+          <i class="ti ti-alert-triangle"></i>
+          <span><strong>2 deliveries</strong> due within 14 days — Sunway Damansara Block C & Tropicana Heights Block A</span>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Active projects by status</div>
+            </div>
+            <div class="pipe-row">
+              <div class="pipe-item"><div class="pipe-label">Ongoing Setting</div><div class="pipe-bar-wrap"><div class="pipe-bar" style="width:60%;background:#1d4ed8"></div></div><div class="pipe-count">5</div></div>
+              <div class="pipe-item"><div class="pipe-label">Ongoing Return</div><div class="pipe-bar-wrap"><div class="pipe-bar" style="width:36%;background:#3b82f6"></div></div><div class="pipe-count">3</div></div>
+              <div class="pipe-item"><div class="pipe-label">Upcoming</div><div class="pipe-bar-wrap"><div class="pipe-bar" style="width:24%;background:#60a5fa"></div></div><div class="pipe-count">2</div></div>
+              <div class="pipe-item"><div class="pipe-label">Returned</div><div class="pipe-bar-wrap"><div class="pipe-bar" style="width:12%;background:#10b981"></div></div><div class="pipe-count">1</div></div>
+              <div class="pipe-item"><div class="pipe-label">Completed</div><div class="pipe-bar-wrap"><div class="pipe-bar" style="width:12%;background:#6b7280"></div></div><div class="pipe-count">1</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Recent projects</div>
+              <button class="btn" style="font-size:11px;padding:4px 10px" onclick="nav('schedule', document.querySelector('.sb-item:nth-child(3)'))">View all</button>
+            </div>
+            <div class="tl-list">
+              <div class="tl-item">
+                <div class="tl-dot" style="background:#1d4ed8"></div>
+                <div class="tl-body">
+                  <div class="tl-title">Sunway Damansara — Block C</div>
+                  <div class="tl-detail">SCP · KKM Nilai · Ongoing Setting</div>
+                </div>
+                <div><span class="badge badge-blue">Rental</span></div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot" style="background:#f59e0b"></div>
+                <div class="tl-body">
+                  <div class="tl-title">Tropicana Heights — Block A</div>
+                  <div class="tl-detail">Aluminium · KKV · Ongoing Return</div>
+                </div>
+                <div><span class="badge badge-amber">Rental</span></div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot" style="background:#10b981"></div>
+                <div class="tl-body">
+                  <div class="tl-title">IOI City — Tower 2</div>
+                  <div class="tl-detail">SCP · KKM Nilai · Upcoming</div>
+                </div>
+                <div><span class="badge badge-green">Sales</span></div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot" style="background:#6b7280"></div>
+                <div class="tl-body">
+                  <div class="tl-title">Pavilion Damansara — Block B</div>
+                  <div class="tl-detail">Aluminium · HQ · Ongoing Setting</div>
+                </div>
+                <div><span class="badge badge-blue">Rental</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Product type split</div></div>
+            <div class="summary-row">
+              <div class="sum-chip"><div class="sum-chip-label">SCP</div><div class="sum-chip-val">7</div></div>
+              <div class="sum-chip"><div class="sum-chip-label">Aluminium</div><div class="sum-chip-val">5</div></div>
+              <div class="sum-chip"><div class="sum-chip-label">KKV</div><div class="sum-chip-val">4</div></div>
+              <div class="sum-chip"><div class="sum-chip-label">KKM Nilai</div><div class="sum-chip-val">6</div></div>
+              <div class="sum-chip"><div class="sum-chip-label">HQ</div><div class="sum-chip-val">2</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Quotation status</div></div>
+            <div class="pipe-row">
+              <div class="pipe-item"><div class="pipe-label">Awarded</div><div class="pipe-bar-wrap"><div class="pipe-bar" style="width:62%;background:#10b981"></div></div><div class="pipe-count">5</div></div>
+              <div class="pipe-item"><div class="pipe-label">Tender</div><div class="pipe-bar-wrap"><div class="pipe-bar" style="width:37%;background:#f59e0b"></div></div><div class="pipe-count">3</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── RENTAL PROJECT SCHEDULE ── -->
+      <div class="page" id="page-schedule">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Rental Project Schedule</div>
+            <div class="page-sub">All active and upcoming rental projects</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn" onclick="openModal('addProject')"><i class="ti ti-filter"></i> <span>Filter</span></button>
+            <button class="btn btn-primary" onclick="openModal('addProject')"><i class="ti ti-plus"></i> <span>Add Project</span></button>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Total Projects</div><div class="stat-val">12</div></div>
+          <div class="stat-card"><div class="stat-label">Ongoing Setting</div><div class="stat-val">5</div><div class="stat-trend trend-up"><i class="ti ti-trending-up" style="font-size:11px"></i> Active</div></div>
+          <div class="stat-card"><div class="stat-label">Ongoing Return</div><div class="stat-val">3</div></div>
+          <div class="stat-card"><div class="stat-label">Upcoming</div><div class="stat-val">2</div><div class="stat-trend"><i class="ti ti-calendar" style="font-size:11px"></i> Next 30 days</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">All projects</div>
+            <div class="search-bar" style="width:220px">
+              <i class="ti ti-search"></i>
+              <input type="text" placeholder="Search client or project...">
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Project / Block</th>
+                  <th>Type</th>
+                  <th>Product</th>
+                  <th>Factory</th>
+                  <th>m²</th>
+                  <th>Delivery Start</th>
+                  <th>Return</th>
+                  <th>Status</th>
+                  <th>PIC</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="td-primary">Sunway</td><td>Damansara / Block C</td><td><span class="badge badge-blue">Rental</span></td><td>SCP</td><td>KKM Nilai</td><td>620</td><td>15 May 26</td><td>30 Sep 26</td><td><span class="badge badge-blue">Ongoing Setting</span></td><td>Ahmad</td></tr>
+                <tr><td class="td-primary">Tropicana</td><td>Heights / Block A</td><td><span class="badge badge-blue">Rental</span></td><td>Aluminium</td><td>KKV</td><td>480</td><td>01 Apr 26</td><td>15 Aug 26</td><td><span class="badge badge-amber">Ongoing Return</span></td><td>Siti</td></tr>
+                <tr><td class="td-primary">IOI City</td><td>Tower 2</td><td><span class="badge badge-green">Sales</span></td><td>SCP</td><td>KKM Nilai</td><td>1,100</td><td>20 Jun 26</td><td>—</td><td><span class="badge badge-gray">Upcoming</span></td><td>Reza</td></tr>
+                <tr><td class="td-primary">Pavilion</td><td>Damansara / Block B</td><td><span class="badge badge-blue">Rental</span></td><td>Aluminium</td><td>HQ</td><td>870</td><td>10 Mar 26</td><td>10 Oct 26</td><td><span class="badge badge-blue">Ongoing Setting</span></td><td>Ahmad</td></tr>
+                <tr><td class="td-primary">SP Setia</td><td>EcoHill 2 / Block D</td><td><span class="badge badge-blue">Rental</span></td><td>SCP</td><td>KKV</td><td>740</td><td>05 Feb 26</td><td>05 Aug 26</td><td><span class="badge badge-amber">Ongoing Return</span></td><td>Siti</td></tr>
+                <tr><td class="td-primary">Mah Sing</td><td>M Adora / Block F</td><td><span class="badge badge-blue">Rental</span></td><td>SCP</td><td>KKM Nilai</td><td>560</td><td>01 Jun 26</td><td>01 Dec 26</td><td><span class="badge badge-gray">Upcoming</span></td><td>Reza</td></tr>
+                <tr><td class="td-primary">Gamuda</td><td>Kundang / Phase 3</td><td><span class="badge badge-blue">Rental</span></td><td>Aluminium</td><td>KKV</td><td>930</td><td>20 Jan 26</td><td>20 Jul 26</td><td><span class="badge badge-blue">Ongoing Setting</span></td><td>Ahmad</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PROJECT QUOTATION ── -->
+      <div class="page" id="page-quotation">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Project Quotation</div>
+            <div class="page-sub">Manage quotations — awarded & tender</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openModal('addQuotation')"><i class="ti ti-plus"></i> <span>Add Quotation</span></button>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Total Quotations</div><div class="stat-val">8</div></div>
+          <div class="stat-card"><div class="stat-label">Awarded</div><div class="stat-val">5</div><div class="stat-trend trend-up"><i class="ti ti-check" style="font-size:11px"></i> RM 4.2M value</div></div>
+          <div class="stat-card"><div class="stat-label">Tender</div><div class="stat-val">3</div><div class="stat-trend trend-down"><i class="ti ti-clock" style="font-size:11px"></i> Pending decision</div></div>
+          <div class="stat-card"><div class="stat-label">Total m²</div><div class="stat-val">6,840</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Quotation list</div>
+            <div style="display:flex;gap:8px">
+              <select style="font-size:11px;padding:5px 8px;border-radius:6px;border:0.5px solid var(--border)">
+                <option>All Status</option>
+                <option>Awarded</option>
+                <option>Tender</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Project / Block</th>
+                  <th>Product</th>
+                  <th>Sales Type</th>
+                  <th>m²</th>
+                  <th>Price (RM)</th>
+                  <th>Contract</th>
+                  <th>Sales PIC</th>
+                  <th>Original Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="td-primary">Sunway</td><td>Damansara / Block C</td><td>SCP</td><td><span class="badge badge-blue">Rental</span></td><td>620</td><td>480,000</td><td>Rental</td><td>Ahmad</td><td>01 Mar 26</td><td><span class="badge badge-green">Awarded</span></td></tr>
+                <tr><td class="td-primary">Tropicana</td><td>Heights / Block A</td><td>Aluminium</td><td><span class="badge badge-purple">Reuse</span></td><td>480</td><td>360,000</td><td>Rental</td><td>Siti</td><td>15 Feb 26</td><td><span class="badge badge-green">Awarded</span></td></tr>
+                <tr><td class="td-primary">IOI City</td><td>Tower 2</td><td>SCP</td><td><span class="badge badge-green">New</span></td><td>1,100</td><td>900,000</td><td>Sales</td><td>Reza</td><td>10 Apr 26</td><td><span class="badge badge-amber">Tender</span></td></tr>
+                <tr><td class="td-primary">Pavilion</td><td>Damansara / Block B</td><td>Aluminium</td><td><span class="badge badge-blue">Rental</span></td><td>870</td><td>720,000</td><td>Rental</td><td>Ahmad</td><td>20 Jan 26</td><td><span class="badge badge-green">Awarded</span></td></tr>
+                <tr><td class="td-primary">SP Setia</td><td>EcoHill 2 / Block D</td><td>SCP</td><td><span class="badge badge-purple">Mix Panel</span></td><td>740</td><td>610,000</td><td>Rental</td><td>Siti</td><td>05 Dec 25</td><td><span class="badge badge-green">Awarded</span></td></tr>
+                <tr><td class="td-primary">Mah Sing</td><td>M Adora / Block F</td><td>SCP</td><td><span class="badge badge-green">New</span></td><td>560</td><td>460,000</td><td>Sales</td><td>Reza</td><td>01 May 26</td><td><span class="badge badge-amber">Tender</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── JOBSITE QUOTATION ── -->
+      <div class="page" id="page-jobsite">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Jobsite Quotation</div>
+            <div class="page-sub">Accessories, aluminium & ad-hoc jobsite orders</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openModal('addJobsite')"><i class="ti ti-plus"></i> <span>Add Jobsite Quotation</span></button>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Total</div><div class="stat-val">11</div></div>
+          <div class="stat-card"><div class="stat-label">PO Received</div><div class="stat-val">6</div><div class="stat-trend trend-up"><i class="ti ti-check" style="font-size:11px"></i> Confirmed</div></div>
+          <div class="stat-card"><div class="stat-label">Pending PO</div><div class="stat-val">4</div><div class="stat-trend trend-down"><i class="ti ti-clock" style="font-size:11px"></i> Awaiting</div></div>
+          <div class="stat-card"><div class="stat-label">Cancelled</div><div class="stat-val">1</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Jobsite quotation list</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Project</th>
+                  <th>Sales PIC</th>
+                  <th>Project Type</th>
+                  <th>Product Type</th>
+                  <th>Description</th>
+                  <th>Amount (RM)</th>
+                  <th>Payment Terms</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="td-primary">Sunway</td><td>Damansara C</td><td>Ahmad</td><td><span class="badge badge-blue">Rental</span></td><td>Accessories</td><td>Platform extension x8</td><td>18,400</td><td>30 Days</td><td><span class="badge badge-green">PO Received</span></td></tr>
+                <tr><td class="td-primary">Tropicana</td><td>Heights A</td><td>Siti</td><td><span class="badge badge-purple">Reuse</span></td><td>Aluminium</td><td>Additional panel set</td><td>42,000</td><td>Cash Term</td><td><span class="badge badge-amber">Pending PO</span></td></tr>
+                <tr><td class="td-primary">IOI City</td><td>Tower 2</td><td>Reza</td><td><span class="badge badge-green">Sales</span></td><td>Accessories</td><td>Bracket tier upgrade</td><td>9,800</td><td>30 Days</td><td><span class="badge badge-green">PO Received</span></td></tr>
+                <tr><td class="td-primary">Gamuda</td><td>Kundang Ph3</td><td>Ahmad</td><td><span class="badge badge-blue">Rental</span></td><td>Others</td><td>Site safety netting</td><td>6,200</td><td>30 Days</td><td><span class="badge badge-amber">Pending PO</span></td></tr>
+                <tr><td class="td-primary">SP Setia</td><td>EcoHill 2</td><td>Siti</td><td><span class="badge badge-blue">Rental</span></td><td>Aluminium</td><td>Return & clean service</td><td>12,500</td><td>Cash Term</td><td><span class="badge badge-red">Cancelled</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PROJECT FORECAST ── -->
+      <div class="page" id="page-forecast">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Project Forecast</div>
+            <div class="page-sub">May 2026 — Delivery pipeline & factory load</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn" onclick="openModal('addForecast')"><i class="ti ti-filter"></i> <span>Filter</span></button>
+            <button class="btn btn-primary" onclick="openModal('addForecast')"><i class="ti ti-plus"></i> <span>Add Forecast</span></button>
+          </div>
+        </div>
+
+        <div class="alert alert-warn">
+          <i class="ti ti-alert-triangle"></i>
+          <span><strong>2 deliveries</strong> due within 14 days — Sunway Damansara Block C & Tropicana Heights Block A</span>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Total Forecasted</div><div class="stat-val">24</div><div class="stat-trend trend-up"><i class="ti ti-trending-up" style="font-size:11px"></i> 3 new this month</div></div>
+          <div class="stat-card"><div class="stat-label">Pending Delivery</div><div class="stat-val">9</div><div class="stat-trend trend-red"><i class="ti ti-clock" style="font-size:11px"></i> 2 overdue</div></div>
+          <div class="stat-card"><div class="stat-label">Total m² (Jun)</div><div class="stat-val">4,820</div><div class="stat-trend trend-up"><i class="ti ti-trending-up" style="font-size:11px"></i> vs 3,940 May</div></div>
+          <div class="stat-card"><div class="stat-label">Est. Tonnage (Jun)</div><div class="stat-val">186t</div><div class="stat-trend"><i class="ti ti-minus" style="font-size:11px"></i> Stable vs May</div></div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Status pipeline</div></div>
+            <div class="pipe-row">
+              <div class="pipe-item"><div class="pipe-label">Ongoing Shell</div><div class="pipe-bar-wrap"><div class="pipe-bar" style="width:75%;background:#1d4ed8"></div></div><div class="pipe-count">6</div></div>
+              <div class="pipe-item"><div class="pipe-label">Ongoing Setting</div><div class="pipe-bar-wrap"><div class="pipe-bar" style="width:50%;background:#3b82f6"></div></div><div class="pipe-count">4</div></div>
+              <div class="pipe-item"><div class="pipe-label">Ongoing MB</div><div class="pipe-bar-wrap"><div class="pipe-bar" style="width:37%;background:#60a5fa"></div></div><div class="pipe-count">3</div></div>
+              <div class="pipe-item"><div class="pipe-label">Ongoing Production</div><div class="pipe-bar-wrap"><div class="pipe-bar" style="width:25%;background:#93c5fd"></div></div><div class="pipe-count">2</div></div>
+              <div class="pipe-item"><div class="pipe-label">Ongoing Delivery</div><div class="pipe-bar-wrap"><div class="pipe-bar" style="width:37%;background:#f59e0b"></div></div><div class="pipe-count">3</div></div>
+              <div class="pipe-item"><div class="pipe-label">Completed</div><div class="pipe-bar-wrap"><div class="pipe-bar" style="width:75%;background:#10b981"></div></div><div class="pipe-count">6</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Upcoming deliveries (30 days)</div></div>
+            <div class="tl-list">
+              <div class="tl-item"><div class="tl-dot" style="background:#ef4444"></div><div class="tl-body"><div class="tl-title">Sunway Damansara — Block C</div><div class="tl-detail">SCP · KKM Nilai · 620m² · 24t</div></div><span class="badge badge-red">3 days</span></div>
+              <div class="tl-item"><div class="tl-dot" style="background:#ef4444"></div><div class="tl-body"><div class="tl-title">Tropicana Heights — Block A</div><div class="tl-detail">Aluminium · KKV · 480m² · 18t</div></div><span class="badge badge-red">11 days</span></div>
+              <div class="tl-item"><div class="tl-dot" style="background:#f59e0b"></div><div class="tl-body"><div class="tl-title">IOI City — Tower 2</div><div class="tl-detail">SCP · KKM Nilai · 1,100m² · 42t</div></div><span class="badge badge-amber">18 days</span></div>
+              <div class="tl-item"><div class="tl-dot" style="background:#3b82f6"></div><div class="tl-body"><div class="tl-title">Pavilion Damansara — Block B</div><div class="tl-detail">Aluminium · HQ · 870m² · 33t</div></div><span class="badge badge-blue">26 days</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Factory load — Jun 2026</div></div>
+            <div class="fac-row">
+              <div class="fac-item"><div class="fac-name">KKM Nilai</div><div class="fac-bars"><div class="fac-bar" style="width:55%;background:#1d4ed8">SCP</div><div class="fac-bar" style="width:20%;background:#93c5fd">Alum</div></div><div class="fac-total">2,180m²</div></div>
+              <div class="fac-item"><div class="fac-name">KKV</div><div class="fac-bars"><div class="fac-bar" style="width:28%;background:#0d2b5e">SCP</div><div class="fac-bar" style="width:35%;background:#3b82f6">Alum</div></div><div class="fac-total">1,640m²</div></div>
+              <div class="fac-item"><div class="fac-name">HQ</div><div class="fac-bars"><div class="fac-bar" style="width:25%;background:#60a5fa">Alum</div></div><div class="fac-total">1,000m²</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Monthly m² forecast</div></div>
+            <div class="vol-chart">
+              <div class="vol-col"><div class="vol-val">3.9k</div><div class="vol-bar" style="height:42px;background:#bfdbfe"></div><div class="vol-lbl">Jan</div></div>
+              <div class="vol-col"><div class="vol-val">4.2k</div><div class="vol-bar" style="height:46px;background:#93c5fd"></div><div class="vol-lbl">Feb</div></div>
+              <div class="vol-col"><div class="vol-val">3.6k</div><div class="vol-bar" style="height:38px;background:#93c5fd"></div><div class="vol-lbl">Mar</div></div>
+              <div class="vol-col"><div class="vol-val">4.5k</div><div class="vol-bar" style="height:48px;background:#3b82f6"></div><div class="vol-lbl">Apr</div></div>
+              <div class="vol-col"><div class="vol-val">3.9k</div><div class="vol-bar" style="height:42px;background:#3b82f6"></div><div class="vol-lbl">May</div></div>
+              <div class="vol-col"><div class="vol-val">4.8k</div><div class="vol-bar" style="height:54px;background:#1d4ed8"></div><div class="vol-lbl">Jun</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Forecast records</div></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Client</th><th>Project / Block</th><th>Building Type</th><th>Product</th><th>Factory</th><th>m²</th><th>Ton</th><th>Shell Start</th><th>Est. Delivery</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="td-primary">Sunway</td><td>Damansara / C</td><td>Highrise</td><td>SCP</td><td>KKM Nilai</td><td>620</td><td>24</td><td>10 Feb 26</td><td>18 May 26</td><td><span class="badge badge-amber">Ongoing Delivery</span></td></tr>
+                <tr><td class="td-primary">Tropicana</td><td>Heights / A</td><td>Highrise</td><td>Aluminium</td><td>KKV</td><td>480</td><td>18</td><td>01 Mar 26</td><td>26 May 26</td><td><span class="badge badge-amber">Ongoing Delivery</span></td></tr>
+                <tr><td class="td-primary">IOI City</td><td>Tower 2</td><td>Podium</td><td>SCP</td><td>KKM Nilai</td><td>1,100</td><td>42</td><td>20 Mar 26</td><td>02 Jun 26</td><td><span class="badge badge-blue">Ongoing Shell</span></td></tr>
+                <tr><td class="td-primary">Pavilion</td><td>Damansara / B</td><td>Highrise</td><td>Aluminium</td><td>HQ</td><td>870</td><td>33</td><td>05 Apr 26</td><td>10 Jun 26</td><td><span class="badge badge-blue">Ongoing Shell</span></td></tr>
+                <tr><td class="td-primary">Gamuda</td><td>Kundang / Ph3</td><td>Terrace</td><td>SCP</td><td>KKV</td><td>560</td><td>21</td><td>15 Jan 26</td><td>30 Apr 26</td><td><span class="badge badge-green">Completed</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ORDERING ── -->
+      <div class="page" id="page-ordering">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Ordering</div>
+            <div class="page-sub">Track contract quantities, ordered quantities and balances</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openModal('addOrder')"><i class="ti ti-plus"></i> <span>Add Order</span></button>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-val">6</div></div>
+          <div class="stat-card"><div class="stat-label">Contract m²</div><div class="stat-val">5,260</div></div>
+          <div class="stat-card"><div class="stat-label">Ordered m²</div><div class="stat-val">3,840</div><div class="stat-trend trend-up"><i class="ti ti-trending-up" style="font-size:11px"></i> 73% fulfilled</div></div>
+          <div class="stat-card"><div class="stat-label">Balance m²</div><div class="stat-val">1,420</div><div class="stat-trend trend-red"><i class="ti ti-alert-triangle" style="font-size:11px"></i> 2 overdue</div></div>
+        </div>
+
+        <div class="alert alert-warn">
+          <i class="ti ti-alert-triangle"></i>
+          <span>2 orders have passed their target order date — IOI City Tower 2 & Mah Sing M Adora</span>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Order tracker</div></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Client</th><th>Project</th><th>Building</th><th>Project Type</th><th>Product</th><th>Contract m²</th><th>Ordered m²</th><th>Balance m²</th><th>Dispute m²</th><th>Target Date</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="td-primary">Sunway</td><td>Damansara C</td><td>High-rise</td><td><span class="badge badge-blue">Rental</span></td><td>SCP</td><td>620</td><td>620</td><td>0</td><td>0</td><td>15 May 26</td><td><span class="badge badge-green">Fulfilled</span></td></tr>
+                <tr><td class="td-primary">Tropicana</td><td>Heights A</td><td>High-rise</td><td><span class="badge badge-blue">Rental</span></td><td>Aluminium</td><td>480</td><td>480</td><td>0</td><td>20</td><td>01 Apr 26</td><td><span class="badge badge-green">Fulfilled</span></td></tr>
+                <tr><td class="td-primary">IOI City</td><td>Tower 2</td><td>High-rise</td><td><span class="badge badge-green">Sales</span></td><td>SCP</td><td>1,100</td><td>600</td><td>500</td><td>0</td><td>01 May 26</td><td><span class="badge badge-red">Overdue</span></td></tr>
+                <tr><td class="td-primary">Pavilion</td><td>Damansara B</td><td>High-rise</td><td><span class="badge badge-blue">Rental</span></td><td>Aluminium</td><td>870</td><td>870</td><td>0</td><td>0</td><td>10 Mar 26</td><td><span class="badge badge-green">Fulfilled</span></td></tr>
+                <tr><td class="td-primary">SP Setia</td><td>EcoHill 2 D</td><td>Terrace</td><td><span class="badge badge-blue">Rental</span></td><td>SCP</td><td>740</td><td>740</td><td>0</td><td>0</td><td>05 Feb 26</td><td><span class="badge badge-green">Fulfilled</span></td></tr>
+                <tr><td class="td-primary">Mah Sing</td><td>M Adora F</td><td>High-rise</td><td><span class="badge badge-green">Sales</span></td><td>SCP</td><td>560</td><td>530</td><td>30</td><td>0</td><td>01 May 26</td><td><span class="badge badge-red">Overdue</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ARCHIVE ── -->
+      <div class="page" id="page-archive">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Archive</div>
+            <div class="page-sub">Completed and cancelled projects</div>
+          </div>
+          <div class="page-actions">
+            <div class="search-bar" style="width:220px">
+              <i class="ti ti-search"></i>
+              <input type="text" placeholder="Search archived projects...">
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Total Archived</div><div class="stat-val">34</div></div>
+          <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-val">28</div></div>
+          <div class="stat-card"><div class="stat-label">Cancelled</div><div class="stat-val">6</div></div>
+          <div class="stat-card"><div class="stat-label">Total m² Delivered</div><div class="stat-val">42,600</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Archived projects</div>
+            <select style="font-size:11px;padding:5px 8px;border-radius:6px;border:0.5px solid var(--border)">
+              <option>All</option>
+              <option>Completed</option>
+              <option>Cancelled</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Client</th><th>Project / Block</th><th>Product</th><th>Factory</th><th>m²</th><th>Start Date</th><th>End Date</th><th>Period</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="td-primary">Gamuda</td><td>Kundang / Ph3</td><td>SCP</td><td>KKV</td><td>560</td><td>15 Jan 26</td><td>30 Apr 26</td><td>3.5 mo</td><td><span class="badge badge-green">Completed</span></td></tr>
+                <tr><td class="td-primary">UEM Sunrise</td><td>Serene Heights / A</td><td>Aluminium</td><td>HQ</td><td>720</td><td>01 Oct 25</td><td>28 Feb 26</td><td>5 mo</td><td><span class="badge badge-green">Completed</span></td></tr>
+                <tr><td class="td-primary">IJM Land</td><td>Rimbayu / B3</td><td>SCP</td><td>KKM Nilai</td><td>490</td><td>15 Aug 25</td><td>15 Jan 26</td><td>5 mo</td><td><span class="badge badge-green">Completed</span></td></tr>
+                <tr><td class="td-primary">EcoWorld</td><td>Eco Sanctuary / Ph1</td><td>SCP</td><td>KKV</td><td>340</td><td>01 Jul 25</td><td>—</td><td>—</td><td><span class="badge badge-red">Cancelled</span></td></tr>
+                <tr><td class="td-primary">Boustead</td><td>Royale Bintang / T1</td><td>Aluminium</td><td>HQ</td><td>610</td><td>01 May 25</td><td>30 Nov 25</td><td>7 mo</td><td><span class="badge badge-green">Completed</span></td></tr>
+                <tr><td class="td-primary">Glomac</td><td>Saujana Rawang / C</td><td>SCP</td><td>KKM Nilai</td><td>280</td><td>01 Jun 25</td><td>—</td><td>—</td><td><span class="badge badge-red">Cancelled</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── EXPORT ── -->
+      <div class="page" id="page-export">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Export Reports</div>
+            <div class="page-sub">Generate and download reports across all modules</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Filter options</div></div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div class="form-group">
+                <label>Date range</label>
+                <select><option>All data</option><option>This month</option><option>Last 3 months</option><option>Custom range</option></select>
+              </div>
+              <div class="form-group">
+                <label>Est. Delivery Date — From</label>
+                <input type="date">
+              </div>
+              <div class="form-group">
+                <label>Est. Delivery Date — To</label>
+                <input type="date">
+              </div>
+              <div class="form-group">
+                <label>Target Order Date — From</label>
+                <input type="date">
+              </div>
+              <div class="form-group">
+                <label>Target Order Date — To</label>
+                <input type="date">
+              </div>
+              <div class="form-group">
+                <label>Client name contains</label>
+                <input type="text" placeholder="e.g. Sunway">
+              </div>
+              <div class="form-group">
+                <label>Project Type</label>
+                <select><option>All</option><option>Rental</option><option>Sales</option><option>Reuse</option></select>
+              </div>
+              <div class="form-group">
+                <label>Sales Type</label>
+                <select><option>All</option><option>New</option><option>Reuse</option><option>Rental</option><option>Mix Panel</option></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><div class="card-title">Export format</div></div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div class="export-option">
+                <div class="export-icon" style="background:#fee2e2;font-size:22px">📄</div>
+                <div><div class="export-title">PDF Report</div><div class="export-desc">Formatted report with charts and summary — suitable for management review</div></div>
+              </div>
+              <div class="export-option">
+                <div class="export-icon" style="background:#dcfce7;font-size:22px">📊</div>
+                <div><div class="export-title">Excel Spreadsheet</div><div class="export-desc">Raw data export with all fields — suitable for further analysis</div></div>
+              </div>
+              <div class="export-option">
+                <div class="export-icon" style="background:var(--navy-light);font-size:22px">📈</div>
+                <div><div class="export-title">Infographic Summary</div><div class="export-desc">Visual one-page summary with key KPIs and charts</div></div>
+              </div>
+              <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;padding:10px">
+                <i class="ti ti-download"></i> Generate & Download
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /body -->
+
+  <!-- MOBILE BOTTOM NAV -->
+  <div class="mobile-nav">
+    <div class="mob-nav-inner">
+      <div class="mob-nav-item active" onclick="nav('dashboard', null, this)"><i class="ti ti-layout-dashboard"></i>Home</div>
+      <div class="mob-nav-item" onclick="nav('schedule', null, this)"><i class="ti ti-calendar"></i>Schedule</div>
+      <div class="mob-nav-item" onclick="nav('forecast', null, this)"><i class="ti ti-chart-line"></i>Forecast</div>
+      <div class="mob-nav-item" onclick="nav('ordering', null, this)"><i class="ti ti-shopping-cart"></i>Orders</div>
+      <div class="mob-nav-item" onclick="nav('export', null, this)"><i class="ti ti-dots"></i>More</div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- ── MODALS ── -->
+
+<!-- Add Project -->
+<div class="modal-overlay" id="modal-addProject">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Project</div>
+      <button class="modal-close" onclick="closeModal('addProject')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>Client</label><input type="text" placeholder="Client name"></div>
+      <div class="form-group"><label>Project Name</label><input type="text" placeholder="Project name"></div>
+      <div class="form-group"><label>Block</label><input type="text" placeholder="Block / Tower"></div>
+      <div class="form-group"><label>Project Type</label><select><option>Rental</option></select></div>
+      <div class="form-group"><label>Meter Square (m²)</label><input type="number" placeholder="0"></div>
+      <div class="form-group"><label>Ton</label><input type="number" placeholder="0"></div>
+      <div class="form-group"><label>Product Type</label><select><option value="">Select...</option><option>SCP</option><option>Aluminium</option></select></div>
+      <div class="form-group"><label>Shell PIC</label><input type="text" placeholder="Name"></div>
+      <div class="form-group"><label>Site Progress</label><input type="text" placeholder="%"></div>
+      <div class="form-group"><label>Factory</label><select><option value="">Select...</option><option>KKV</option><option>KKM (Nilai)</option><option>HQ</option></select></div>
+      <div class="form-group"><label>Delivery Start</label><input type="date"></div>
+      <div class="form-group"><label>Delivery Finish</label><input type="date"></div>
+      <div class="form-group"><label>First Billing Date</label><input type="date"></div>
+      <div class="form-group"><label>Period</label><input type="text" placeholder="e.g. 6 months"></div>
+      <div class="form-group"><label>Return (Contract)</label><input type="date"></div>
+      <div class="form-group"><label>Status</label><select><option value="">Select...</option><option>Upcoming</option><option>Ongoing Setting</option><option>Ongoing Return</option><option>Returned</option><option>Completed</option><option>Cancelled</option></select></div>
+      <div class="form-group full"><label>Remark</label><textarea placeholder="Notes..."></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal('addProject')">Cancel</button>
+      <button class="btn btn-primary">Save Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Quotation -->
+<div class="modal-overlay" id="modal-addQuotation">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Project Quotation</div>
+      <button class="modal-close" onclick="closeModal('addQuotation')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>Client Name</label><input type="text"></div>
+      <div class="form-group"><label>Project Name</label><input type="text"></div>
+      <div class="form-group"><label>Block</label><input type="text"></div>
+      <div class="form-group"><label>Product Type</label><select><option value="">Select...</option><option>SCP</option><option>Aluminium</option></select></div>
+      <div class="form-group"><label>Temp. Column</label><input type="number" placeholder="0"></div>
+      <div class="form-group"><label>Platform</label><input type="number" placeholder="0"></div>
+      <div class="form-group"><label>Bracket</label><input type="number" placeholder="0"></div>
+      <div class="form-group"><label>Location</label><select><option value="">Select...</option></select></div>
+      <div class="form-group"><label>Sales Type</label><select><option value="">Select...</option><option>New</option><option>Reuse</option><option>Rental</option><option>Mix Panel</option></select></div>
+      <div class="form-group"><label>Original Date</label><input type="date"></div>
+      <div class="form-group"><label>m²</label><input type="number" placeholder="0"></div>
+      <div class="form-group"><label>Ton</label><input type="number" placeholder="0"></div>
+      <div class="form-group"><label>Sales PIC</label><input type="text"></div>
+      <div class="form-group"><label>Price Offered (RM)</label><input type="number" placeholder="0"></div>
+      <div class="form-group"><label>Revision Date</label><input type="date"></div>
+      <div class="form-group"><label>Reference</label><input type="text"></div>
+      <div class="form-group"><label>Contract Type</label><select><option value="">Select...</option><option>Rental</option><option>Sales</option></select></div>
+      <div class="form-group"><label>Signed Date</label><input type="date"></div>
+      <div class="form-group"><label>Status</label><select><option value="">Select...</option><option>Awarded</option><option>Tender</option></select></div>
+      <div class="form-group full"><label>Remark</label><textarea placeholder="Notes..."></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal('addQuotation')">Cancel</button>
+      <button class="btn btn-primary">Save Quotation</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Jobsite -->
+<div class="modal-overlay" id="modal-addJobsite">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Jobsite Quotation</div>
+      <button class="modal-close" onclick="closeModal('addJobsite')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>Client Name</label><input type="text"></div>
+      <div class="form-group"><label>Project Name</label><input type="text"></div>
+      <div class="form-group"><label>Sales PIC</label><input type="text"></div>
+      <div class="form-group"><label>Project Type</label><select><option value="">Select...</option><option>Reuse</option><option>Rental</option><option>Sales</option></select></div>
+      <div class="form-group full"><label>Description</label><textarea placeholder="Describe the jobsite requirement..."></textarea></div>
+      <div class="form-group"><label>Product Type</label><select><option value="">Select...</option><option>Aluminium</option><option>Accessories</option><option>Others</option></select></div>
+      <div class="form-group"><label>Amount Offered (RM)</label><input type="number" placeholder="0"></div>
+      <div class="form-group"><label>Payment Terms</label><select><option value="">Select...</option><option>30 Days</option><option>Cash Term</option><option>Others</option></select></div>
+      <div class="form-group"><label>Other Terms</label><input type="text" placeholder="If applicable"></div>
+      <div class="form-group"><label>Status</label><select><option value="">Select...</option><option>Pending PO</option><option>PO Received</option><option>Cancelled</option></select></div>
+      <div class="form-group full"><label>Remark</label><textarea placeholder="Notes..."></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal('addJobsite')">Cancel</button>
+      <button class="btn btn-primary">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Forecast -->
+<div class="modal-overlay" id="modal-addForecast">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Project Forecast</div>
+      <button class="modal-close" onclick="closeModal('addForecast')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>Client Name</label><input type="text"></div>
+      <div class="form-group"><label>Project Name</label><input type="text"></div>
+      <div class="form-group"><label>Block</label><input type="text"></div>
+      <div class="form-group"><label>Location</label><select><option value="">Select...</option></select></div>
+      <div class="form-group"><label>Shell Started Date</label><input type="date"></div>
+      <div class="form-group"><label>Shell Confirmation Date</label><input type="date"></div>
+      <div class="form-group"><label>Est. Delivery Date</label><input type="date"></div>
+      <div class="form-group"><label>Building Type</label><select><option value="">Select...</option><option>Podium</option><option>Highrise</option><option>Terrace</option></select></div>
+      <div class="form-group"><label>Product Type</label><select><option value="">Select...</option><option>Aluminium</option><option>SCP</option></select></div>
+      <div class="form-group"><label>SCP Type</label><select><option value="">Select...</option><option>Bracket</option><option>Platform</option><option>Bracket tier</option></select></div>
+      <div class="form-group"><label>Factory</label><select><option value="">Select...</option><option>KKV</option><option>KKM (Nilai)</option><option>HQ</option><option>Others</option></select></div>
+      <div class="form-group"><label>Status</label><select><option value="">Select...</option><option>Ongoing Shell</option><option>Ongoing Setting</option><option>Ongoing MB</option><option>Ongoing Production</option><option>Ongoing Delivery</option><option>Completed</option><option>Pending & Others</option><option>Cancelled</option></select></div>
+      <div class="form-group"><label>Order Qty</label><input type="number" placeholder="0"></div>
+      <div class="form-group"><label>m²</label><input type="number" placeholder="0"></div>
+      <div class="form-group"><label>Ton</label><input type="number" placeholder="0"></div>
+      <div class="form-group full"><label>Remark</label><textarea placeholder="Notes..."></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal('addForecast')">Cancel</button>
+      <button class="btn btn-primary">Save Forecast</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Order -->
+<div class="modal-overlay" id="modal-addOrder">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Order</div>
+      <button class="modal-close" onclick="closeModal('addOrder')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>Client Name</label><input type="text"></div>
+      <div class="form-group"><label>Project Name</label><input type="text"></div>
+      <div class="form-group"><label>Building Type</label><select><option value="">Select...</option><option>Terrace</option><option>High-rise</option></select></div>
+      <div class="form-group"><label>Project Type</label><select><option value="">Select...</option><option>Rental</option><option>Sales</option></select></div>
+      <div class="form-group"><label>Contract Quantity (m²)</label><input type="number" placeholder="0"></div>
+      <div class="form-group"><label>Ordered Quantity (m²)</label><input type="number" placeholder="0"></div>
+      <div class="form-group"><label>Balance Quantity</label><input type="number" placeholder="0"></div>
+      <div class="form-group"><label>Dispute Quantity</label><input type="number" placeholder="0"></div>
+      <div class="form-group"><label>Ongoing Order</label><input type="text" placeholder="Details"></div>
+      <div class="form-group"><label>Product Type</label><select><option value="">Select...</option><option>SCP</option><option>Aluminium</option></select></div>
+      <div class="form-group"><label>Target Order Date</label><input type="date"></div>
+      <div class="form-group"><label>Change Floor</label><input type="text" placeholder="Floor details"></div>
+      <div class="form-group full"><label>Remark</label><textarea placeholder="Notes..."></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal('addOrder')">Cancel</button>
+      <button class="btn btn-primary">Save Order</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Set last updated time
+  document.getElementById('lastUpdated').textContent = new Date().toLocaleString('en-MY', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  // Navigation
+  function nav(pageId, sidebarItem, mobileItem) {
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + pageId).classList.add('active');
+
+    // Update sidebar active
+    document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+    if (sidebarItem) sidebarItem.classList.add('active');
+
+    // Update mobile nav active
+    document.querySelectorAll('.mob-nav-item').forEach(i => i.classList.remove('active'));
+    if (mobileItem) mobileItem.classList.add('active');
+
+    // Close sidebar on mobile after nav
+    if (window.innerWidth <= 768) closeSidebar();
+
+    // Scroll to top
+    document.querySelector('.main').scrollTop = 0;
+  }
+
+  // Sidebar toggle
+  function toggleSidebar() {
+    const sb = document.getElementById('sidebar');
+    const overlay = document.getElementById('sbOverlay');
+    sb.classList.toggle('open');
+    overlay.classList.toggle('open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sbOverlay').classList.remove('open');
+  }
+
+  // Modals
+  function openModal(id) {
+    document.getElementById('modal-' + id).classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(id) {
+    document.getElementById('modal-' + id).classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  // Close modal on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+  });
+</script>
+</body>
+</html>
