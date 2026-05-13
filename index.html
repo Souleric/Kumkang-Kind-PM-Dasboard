@@ -815,15 +815,15 @@ textarea { min-height: 70px; resize: vertical; }
             <div class="card-header"><div class="card-title">Export format</div></div>
             <div style="display:flex;flex-direction:column;gap:10px">
               <div class="export-option">
-                <div class="export-icon" style="background:#fee2e2;font-size:22px">📄</div>
+                <div class="export-icon" style="background:#fee2e2"><i class="ti ti-file-type-pdf" style="font-size:22px;color:#dc2626"></i></div>
                 <div><div class="export-title">PDF Report</div><div class="export-desc">Formatted report with charts and summary — suitable for management review</div></div>
               </div>
               <div class="export-option">
-                <div class="export-icon" style="background:#dcfce7;font-size:22px">📊</div>
+                <div class="export-icon" style="background:#dcfce7"><i class="ti ti-table" style="font-size:22px;color:#15803d"></i></div>
                 <div><div class="export-title">Excel Spreadsheet</div><div class="export-desc">Raw data export with all fields — suitable for further analysis</div></div>
               </div>
               <div class="export-option">
-                <div class="export-icon" style="background:var(--navy-light);font-size:22px">📈</div>
+                <div class="export-icon" style="background:var(--navy-light)"><i class="ti ti-chart-bar" style="font-size:22px;color:#0d2b5e"></i></div>
                 <div><div class="export-title">Infographic Summary</div><div class="export-desc">Visual one-page summary with key KPIs and charts</div></div>
               </div>
               <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;padding:10px">
@@ -1285,7 +1285,7 @@ textarea { min-height: 70px; resize: vertical; }
 
   <div class="chat-messages" id="chatMessages">
     <div class="msg bot">
-      <div class="msg-bubble">Hi there 👋 I have access to your dashboard data. Select a question below to get started.</div>
+      <div class="msg-bubble"><i class="ti ti-hand-stop" style="font-size:13px;vertical-align:middle"></i> Hi there! I have access to your dashboard data. Select a question below to get started.</div>
       <div class="msg-time">Just now</div>
     </div>
   </div>
@@ -1356,7 +1356,7 @@ textarea { min-height: 70px; resize: vertical; }
   const responses = {
     urgent: () => {
       const d = dashData.urgent;
-      return `🚨 <strong>Urgent items for today:</strong><br><br>` +
+      return `<i class="ti ti-alert-circle" style="font-size:13px;color:#dc2626;vertical-align:middle"></i> <strong>Urgent items for today:</strong><br><br>` +
         `<strong>Deliveries due soon:</strong><br>` +
         d.deliveries.map(x => `• ${x.project} — in <strong>${x.days} days</strong> (${x.type}, ${x.factory})`).join('<br>') +
         `<br><br><strong>Overdue orders:</strong><br>` +
@@ -1365,12 +1365,12 @@ textarea { min-height: 70px; resize: vertical; }
         d.pendingPO.map(x => `• ${x}`).join('<br>');
     },
     risk: () => {
-      return `⚠️ <strong>Projects flagged at risk:</strong><br><br>` +
+      return `<i class="ti ti-shield-exclamation" style="font-size:13px;color:#b45309;vertical-align:middle"></i> <strong>Projects flagged at risk:</strong><br><br>` +
         dashData.risk.map((r, i) => `<strong>${i + 1}. ${r.project}</strong><br><span style="color:#6b7280;font-size:11.5px">${r.reason}</span>`).join('<br><br>');
     },
     forecast: () => {
       const f = dashData.forecast;
-      return `📊 <strong>Forecast summary — Jun 2026:</strong><br><br>` +
+      return `<i class="ti ti-chart-line" style="font-size:13px;color:#0d2b5e;vertical-align:middle"></i> <strong>Forecast summary — Jun 2026:</strong><br><br>` +
         `• Total forecasted projects: <strong>${f.total}</strong><br>` +
         `• Pending delivery: <strong>${f.pendingDelivery}</strong> (2 overdue)<br>` +
         `• June m² volume: <strong>${f.junM2.toLocaleString()}m²</strong> ↑ vs 3,940 in May<br>` +
@@ -1380,12 +1380,12 @@ textarea { min-height: 70px; resize: vertical; }
     },
     factory: () => {
       const f = dashData.factory;
-      return `🏭 <strong>Factory load — Jun 2026:</strong><br><br>` +
+      return `<i class="ti ti-building-factory" style="font-size:13px;color:#0d2b5e;vertical-align:middle"></i> <strong>Factory load — Jun 2026:</strong><br><br>` +
         f.map((x, i) => `<strong>${i + 1}. ${x.name}</strong> — ${x.m2.toLocaleString()}m² (${x.types})`).join('<br>') +
         `<br><br><strong>${f[0].name}</strong> currently carries the highest load at <strong>${f[0].m2.toLocaleString()}m²</strong>. Monitor capacity closely given the 2 urgent deliveries also assigned there.`;
     },
     email: () => {
-      return `📧 <strong>Got it!</strong><br><br>Compiling your dashboard summary — active projects, urgent items, forecast snapshot, and overdue orders.<br><br>✅ Summary email prepared and queued for delivery to <strong>pm@kumkangkind.com.my</strong>.<br><br><span style="color:#6b7280;font-size:11.5px">Note: Email delivery is managed by the system administrator.</span>`;
+      return `<i class="ti ti-mail" style="font-size:13px;color:#0d2b5e;vertical-align:middle"></i> <strong>Got it!</strong><br><br>Compiling your dashboard summary — active projects, urgent items, forecast snapshot, and overdue orders.<br><br><i class="ti ti-circle-check" style="font-size:13px;color:#15803d;vertical-align:middle"></i> Summary email prepared and queued for delivery to <strong>pm@kumkangkind.com.my</strong>.<br><br><span style="color:#6b7280;font-size:11.5px">Note: Email delivery is managed by the system administrator.</span>`;
     }
   };
 
